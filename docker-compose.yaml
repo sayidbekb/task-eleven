@@ -11,6 +11,7 @@ x-airflow-common:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW_CONN_POSTGRES_PAGILA_CONN: 'postgresql://pagila_admin:pagila_pass123@postgres-pagila:5432/pagila_db'
+    AIRFLOW_CONN_MYSQL_SAKILA_CONN: 'mysql://root:root@mysql-sakila:3306/sakila'
     AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql+psycopg2://airflow:airflow@postgres/airflow
@@ -309,8 +310,26 @@ services:
       timeout: 5s
       retries: 5
 
-    
+  mysql-sakila:
+    image: mysql:8.0-debian
+    command: --log-bin-trust-function-creators=1
+    container_name: mysql-sakila
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sakila
+      MYSQL_USER: sakila_user
+      MYSQL_PASSWORD: sakila_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-sakila-db-volume:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5  
 
 volumes:
   postgres-db-volume:
   pagila-db-volume:
+  mysql-sakila-db-volume:
