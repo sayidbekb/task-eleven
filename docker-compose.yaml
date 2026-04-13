@@ -7,6 +7,8 @@ x-airflow-common:
   # build: .
   env_file:
     - ${ENV_FILE_PATH:-.env}
+  networks:
+  - data-pipeline-network
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
@@ -29,7 +31,7 @@ x-airflow-common:
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
-    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-apache-airflow-providers-mysql}
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-apache-airflow-providers-mysql apache-airflow-providers-airbyte}
     # The following line can be used to set a custom config file, stored in the local config folder
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
   volumes:
@@ -293,13 +295,24 @@ services:
   postgres-pagila:
     image: postgres:16
     container_name: postgres-pagila
+    command:
+      - postgres
+      - '-c'
+      - 'wal_level=logical'
+      - '-c'
+      - 'max_replication_slots=10'
+      - '-c'
+      - 'max_wal_senders=10'
     environment:
       - POSTGRES_USER=pagila_admin
       - POSTGRES_PASSWORD=pagila_pass123
       - POSTGRES_DB=pagila_db
-    
+
+
     ports:
       - "5434:5432"
+    networks:
+      - data-pipeline-network
       
     volumes:
       - pagila-db-volume:/var/lib/postgresql/data
@@ -312,7 +325,6 @@ services:
 
   mysql-sakila:
     image: mysql:8.0-debian
-    command: --log-bin-trust-function-creators=1
     container_name: mysql-sakila
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -321,6 +333,8 @@ services:
       MYSQL_PASSWORD: sakila_password
     ports:
       - "3307:3306"
+    networks:
+      - data-pipeline-network
     volumes:
       - mysql-sakila-db-volume:/var/lib/mysql
     healthcheck:
@@ -329,7 +343,12 @@ services:
       timeout: 5s
       retries: 5  
 
+    
 volumes:
   postgres-db-volume:
   pagila-db-volume:
   mysql-sakila-db-volume:
+
+networks:
+  data-pipeline-network:
+    external: true
