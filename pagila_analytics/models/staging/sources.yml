@@ -1,0 +1,56 @@
+version: 2
+
+sources:
+  - name: pagila
+    database: AIRBYTE_DB
+    schema: PAGILA
+
+    tables:
+      - name: actor
+        description: "Raw actor data"
+
+      - name: film
+        description: "Raw film table from Pagila"
+        loaded_at_field: _AIRBYTE_EXTRACTED_AT
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: category
+        description: "Film categories"
+
+      - name: rental
+        description: "Rental transactions"
+        loaded_at_field: _AIRBYTE_EXTRACTED_AT
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: customer
+        description: "Customer data"
+
+      - name: inventory
+        description: "Inventory of films"
+        loaded_at_field: _AIRBYTE_EXTRACTED_AT
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: payment
+        description: "Payments for rentals"
+        loaded_at_field: _AIRBYTE_EXTRACTED_AT
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: address
+        description: "Customer addresses"
+
+      - name: city
+        description: "City reference data"
+
+      - name: film_actor
+        description: "Bridge between films and actors"
+
+      - name: film_category
+        description: "Bridge between films and categories"
