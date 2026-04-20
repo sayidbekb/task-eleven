@@ -1,20 +1,12 @@
 from datetime import datetime
 from airflow import DAG
-from airflow.operators.python import PythonOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
-import requests
+import os
 
-BASE_PATH = "/opt/airflow/shared"
+from config.db_init_config import BASE_PATH, DB_CONFIGS
+from tasks.download import download_file
 
-SCHEMA_URL = "https://raw.githubusercontent.com/devrimgunduz/pagila/master/pagila-schema.sql"
-DATA_URL = "https://raw.githubusercontent.com/devrimgunduz/pagila/master/pagila-data.sql"
-
-
-def download_file(url, path):
-    response = requests.get(url)
-    response.raise_for_status()
-    with open(path, "wb") as f:
-        f.write(response.content)
+cfg = DB_CONFIGS['pagila']
 
 
 with DAG(
@@ -25,45 +17,23 @@ with DAG(
     tags=['pagila', 'setup'],
 ) as dag:
 
-    download_schema = PythonOperator(
-        task_id="download_schema",
-        python_callable=download_file,
-        op_kwargs={
-            "url": SCHEMA_URL,
-            "path": f"{BASE_PATH}/pagila-schema.sql"
-        }
-    )
 
-    download_data = PythonOperator(
-        task_id="download_data",
-        python_callable=download_file,
-        op_kwargs={
-            "url": DATA_URL,
-            "path": f"{BASE_PATH}/pagila-data.sql"
-        }
-    )
+    schema_path = os.path.join(BASE_PATH, cfg["schema_file"])
+    data_path = os.path.join(BASE_PATH, cfg["data_file"])
 
-    drop_schema = SQLExecuteQueryOperator(
-        task_id='drop_schema',
-        conn_id='postgres_pagila_conn',
-        sql="""
-            DROP SCHEMA public CASCADE;
-            CREATE SCHEMA public;
-            GRANT ALL ON SCHEMA public TO pagila_admin;
-            GRANT ALL ON SCHEMA public to public;
-        """
-    )
+    download_schema = download_file(cfg["schema_url"], schema_path)
+    download_data = download_file(cfg["data_url"], data_path)
 
     create_schema = SQLExecuteQueryOperator(
         task_id='create_schema',
-        conn_id='postgres_pagila_conn',
-        sql=f"{BASE_PATH}/pagila-schema.sql"
+        conn_id=cfg['conn_id'],
+        sql=schema_path
     )
-
+    
     populate_data = SQLExecuteQueryOperator(
         task_id='populate_data',
-        conn_id='postgres_pagila_conn',
-        sql=f"{BASE_PATH}/pagila-data.sql"
+        conn_id=cfg['conn_id'],
+        sql=data_path,
     )
 
-    [download_schema, download_data] >> drop_schema >> create_schema >> populate_data
+    [download_schema, download_data] >> create_schema >> populate_data
