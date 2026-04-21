@@ -1,7 +1,6 @@
 from airflow import DAG
 from datetime import datetime
 from datetime import timedelta
-
 from airflow.providers.airbyte.operators.airbyte import AirbyteTriggerSyncOperator
 
 default_args = {
@@ -20,9 +19,6 @@ with DAG(
     catchup=False,
     tags=["task3", "airbyte", "snowflake"],
 ) as dag:
-
-    
-   
     
     sync_pagila = AirbyteTriggerSyncOperator(
         task_id="sync_pagila",
@@ -31,11 +27,8 @@ with DAG(
         asynchronous=False,
         timeout=3600,
         wait_seconds=10,
-    )
-
+    )   
    
-   
-    
     sync_sakila = AirbyteTriggerSyncOperator(
         task_id="sync_sakila",
         airbyte_conn_id="airbyte_conn",
@@ -44,6 +37,5 @@ with DAG(
         timeout=3600,
         wait_seconds=10,
     )
-
 
     sync_pagila >> sync_sakila
