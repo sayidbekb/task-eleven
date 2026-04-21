@@ -22,7 +22,7 @@ with DAG(
 ) as dag:
 
     
-    # Pagila → Snowflake
+   
     
     sync_pagila = AirbyteTriggerSyncOperator(
         task_id="sync_pagila",
@@ -34,7 +34,7 @@ with DAG(
     )
 
    
-    # Sakila → Snowflake
+   
     
     sync_sakila = AirbyteTriggerSyncOperator(
         task_id="sync_sakila",
@@ -45,5 +45,5 @@ with DAG(
         wait_seconds=10,
     )
 
-    # Run them
+
     sync_pagila >> sync_sakila
