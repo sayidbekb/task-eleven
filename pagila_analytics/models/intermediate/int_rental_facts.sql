@@ -18,6 +18,7 @@ payment as (
 )
 
 select
+    r.tenant_id,
     r.rental_id,
     r.customer_id,
     r.staff_id,
@@ -37,6 +38,12 @@ select
         else p.amount
     end as revenue
 from rental r
-join inventory i on r.inventory_id = i.inventory_id
-left join film f on i.film_id = f.film_id
-left join payment p on r.rental_id = p.rental_id
+join inventory i 
+    on r.inventory_id = i.inventory_id
+    and r.tenant_id = i.tenant_id
+left join film f
+    on i.film_id = f.film_id
+    and i.tenant_id = f.tenant_id
+left join payment p 
+    on r.rental_id = p.rental_id
+    and r.tenant_id = p.tenant_id

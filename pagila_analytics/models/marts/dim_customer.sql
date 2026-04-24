@@ -6,6 +6,7 @@ with customer as (
 )
 
 select
+    tenant_id,
     customer_id,
     customer_full_name,
     email,

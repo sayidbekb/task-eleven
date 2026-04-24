@@ -4,6 +4,7 @@ with actor as (
 )
 
 select
+    tenant_id,
     actor_id,
     first_name,
     last_name,

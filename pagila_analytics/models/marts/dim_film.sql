@@ -16,6 +16,7 @@ category as (
 )
 
 select
+    tenant_id,
     f.film_id,
     f.title,
     f.description,
@@ -29,3 +30,4 @@ left join film_category fc
     on f.film_id = fc.film_id
 left join category c
     on fc.category_id = c.category_id
+    and f.tenant_id = fc.tenant_id

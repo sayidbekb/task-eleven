@@ -15,12 +15,16 @@ actors as (
 )
 
 select
+    f.tenant_id,
+    r.tenant_id,
     a.first_name,
     a.last_name,
     count(*) as film_count
 from films f
-join film_actor fa on f.film_id = fa.film_id
+join film_actor fa 
+on f.film_id = fa.film_id
+and f.tenant_id = fa.tenant_id
 join actors a on fa.actor_id = a.actor_id
-group by a.first_name, a.last_name
+group by f.tenant_id, a.first_name, a.last_name
 order by film_count desc
 limit 10

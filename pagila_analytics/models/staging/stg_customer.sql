@@ -1,4 +1,5 @@
 SELECT
+    {{ var("tenant_id") }} as tenant_id,
     customer_id,
     store_id,
     first_name,

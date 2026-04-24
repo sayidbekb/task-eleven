@@ -14,6 +14,7 @@ actor as (
 )
 
 select
+    f.tenant_id,
     fa.actor_id,
     fa.film_id,
     f.title as film_title,
@@ -24,5 +25,7 @@ select
 from film_actor fa
 join film f
     on fa.film_id = f.film_id
+    and f.tenant_id = 'pagila'
 join actor a
     on fa.actor_id = a.actor_id
+    and a.tenant_id = 'pagila'

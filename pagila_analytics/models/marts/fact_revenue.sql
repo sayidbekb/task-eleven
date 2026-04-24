@@ -4,6 +4,7 @@ with rental as (
 )
 
 select
+    tenant_id,
     rental_id,
     customer_id,
     film_id,

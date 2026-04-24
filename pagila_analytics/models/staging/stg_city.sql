@@ -1,4 +1,5 @@
 SELECT
+    {{ var("tenant_id") }} as tenant_id,
     city_id,
     city,
     country_id,

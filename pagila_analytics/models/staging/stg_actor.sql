@@ -1,4 +1,5 @@
 SELECT
+    {{ var("tenant_id") }} as tenant_id,
     actor_id,
     first_name,
     last_name,

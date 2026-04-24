@@ -2,8 +2,8 @@ version: 2
 
 sources:
   - name: pagila
-    database: AIRBYTE_DB
-    schema: PAGILA
+    database: "{{ var('source_database') }}"
+    schema: "{{ var('source_schema') }}"
 
     tables:
       - name: actor

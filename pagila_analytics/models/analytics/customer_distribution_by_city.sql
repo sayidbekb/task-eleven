@@ -4,8 +4,9 @@ with customers as (
 )
 
 select
+    tenant_id,
     city,
     count(customer_id) as customer_count
 from customers
-group by city
+group by tenant_id, city
 order by customer_count desc
